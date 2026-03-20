@@ -20,6 +20,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Test Telegram connectivity
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/getMe || echo "Telegram unreachable"
+
       - name: Run morning report
         run: node morning-report.js
         env:

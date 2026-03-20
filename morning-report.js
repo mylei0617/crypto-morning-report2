@@ -30,14 +30,17 @@ async function tg(text, retries = 3) {
         body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text, parse_mode: "Markdown" }),
       });
       const data = await res.json();
-      if (data.ok) return;
+      if (data.ok) {
+        console.log(`Telegram sent OK, msg_id: ${data.result.message_id}`);
+        return true;
+      }
       console.log(`Telegram attempt ${i+1} failed:`, data.description);
     } catch (e) {
       console.log(`Telegram attempt ${i+1} error:`, e.message);
     }
     if (i < retries - 1) await new Promise(r => setTimeout(r, 2000));
   }
-  throw new Error("Telegram发送失败");
+  return false;
 }
 
 // ─── MiniMax ────────────────────────────────
@@ -176,8 +179,10 @@ ${fgText}
 
 ⚠️ _仅供参考，非投资建议_`;
 
-    await tg(report);
-    console.log("✅ 早报已发送！");
+    const sent = await tg(report);
+    console.log("✅ 早报已发送！ sent:", sent);
+    if (!sent) throw new Error("Telegram发送失败");
+    console.log("─────────────────");
     console.log("─────────────────");
     console.log(report);
 
