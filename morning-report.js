@@ -10,16 +10,11 @@ const fetch = require("node-fetch");
 const MINIMAX_API_KEY  = process.env.MINIMAX_API_KEY;
 const TELEGRAM_TOKEN   = process.env.TELEGRAM_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-const PROXY_URL       = process.env.HTTP_PROXY;  // 可选，本地运行时填，云端留空
 
-const agent = PROXY_URL ? new (require("https-proxy-agent"))(PROXY_URL) : undefined;
 const MINIMAX_URL = "https://api.minimaxi.com/v1/text/chatcompletion_v2";
 const OKX_URL     = "https://www.okx.com/api/v5";
 
-function myFetch(url, options = {}) {
-  const opts = agent ? { ...options, agent } : options;
-  return fetch(url, opts);
-}
+const myFetch = fetch;
 
 // ─── 校验 ─────────────────────────────────
 if (!MINIMAX_API_KEY || !TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) {
