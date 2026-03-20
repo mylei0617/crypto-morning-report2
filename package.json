@@ -1,0 +1,12 @@
+{
+  "name": "crypto-morning-report",
+  "version": "1.0.0",
+  "description": "加密货币每日早报 - MiniMax + OKX",
+  "main": "morning-report.js",
+  "scripts": {
+    "start": "node morning-report.js"
+  },
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  }
+}
