@@ -4,9 +4,7 @@
  * 聚焦 BTC 信号 + TRUMP + 恐贪指数
  */
 
-const fetch = require("node-fetch");
-
-// ─── 环境变量 ──────────────────────────────
+// Node 24 内置 fetch，无需 node-fetch
 const MINIMAX_API_KEY  = process.env.MINIMAX_API_KEY;
 const TELEGRAM_TOKEN   = process.env.TELEGRAM_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
@@ -23,12 +21,23 @@ if (!MINIMAX_API_KEY || !TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) {
 }
 
 // ─── 发 Telegram ────────────────────────────
-async function tg(text) {
-  await myFetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text, parse_mode: "Markdown" }),
-  });
+async function tg(text, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await myFetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text, parse_mode: "Markdown" }),
+      });
+      const data = await res.json();
+      if (data.ok) return;
+      console.log(`Telegram attempt ${i+1} failed:`, data.description);
+    } catch (e) {
+      console.log(`Telegram attempt ${i+1} error:`, e.message);
+    }
+    if (i < retries - 1) await new Promise(r => setTimeout(r, 2000));
+  }
+  throw new Error("Telegram发送失败");
 }
 
 // ─── MiniMax ────────────────────────────────
